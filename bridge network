@@ -1,0 +1,17 @@
+docker network create <network name>            ## to create bridge network
+docker network rm <network name>                  ## remove a user-defined bridge network
+ docker create --name <cont name> --network <network name> --publish 8080:80 nginx:latest     ## Connect a container to a user-defined bridge
+ docker network connect <network name> <container name>          ## connect to network if not connected
+ sysctl net.ipv4.conf.all.forwarding=1              ##Enable Docker containers ips to the outside world
+ sudo iptables -P FORWARD ACCEPT                           ##Enable Docker containers ips to the outside world
+ 
+ ### code to configure default bridge ntework #############
+ {
+  "bip": "192.168.1.5/24",
+  "fixed-cidr": "192.168.1.5/25",
+  "fixed-cidr-v6": "2001:db8::/64",
+  "mtu": 1500,
+  "default-gateway": "10.20.1.1",
+  "default-gateway-v6": "2001:db8:abcd::89",
+  "dns": ["10.20.1.2","10.20.1.3"]
+}
