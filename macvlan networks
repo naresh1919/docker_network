@@ -1,0 +1,49 @@
+##Some applications, especially legacy applications or applications which monitor network traffic,
+expect to be directly connected to the physical network In this type of situation, 
+you can use the macvlan network driver to assign a MAC address to each container’s virtual network interface,
+making it appear to be a physical network interface directly connected to the physical network        ##
+
+#########Create a macvlan network ##############
+macvlan is two types  1 . bridge mode
+                      2. 802.1q trunk bridge mode
+                      
+1.Bridge mode
+   docker network create -d macvlan \
+  --subnet=172.16.86.0/24 \
+  --gateway=172.16.86.1 \
+  -o parent=eth0 pub_net
+## If you need to exclude IP addresses from being used in the macvlan network, 
+                  such as when a given IP address is already in use, use --aux-addresses
+docker network create -d macvlan \
+  --subnet=192.168.32.0/24 \
+  --ip-range=192.168.32.128/25 \
+  --gateway=192.168.32.254 \
+  --aux-address="my-router=192.168.32.129" \
+  -o parent=eth0 macnet32
+                  
+  
+2. 802.1q trunk bridge mode
+
+docker network create -d macvlan \
+    --subnet=192.168.50.0/24 \
+    --gateway=192.168.50.1 \
+    -o parent=eth0.50 macvlan50
+   
+   
+   ################# In the above example, you are still using a L3 bridge. You can use ipvlan instead, and get an L2 bridge. Specify#####
+   
+   docker network create -d ipvlan \
+    --subnet=192.168.210.0/24 \
+    --subnet=192.168.212.0/24 \
+    --gateway=192.168.210.254 \
+    --gateway=192.168.212.254 \
+     -o ipvlan_mode=l2 ipvlan210
+     
+     ########### f you have configured the Docker daemon to allow IPv6, you can use dual-stack IPv4/IPv6 macvlan networks. ########
+     
+     docker network create -d macvlan \
+    --subnet=192.168.216.0/24 --subnet=192.168.218.0/24 \
+    --gateway=192.168.216.1 --gateway=192.168.218.1 \
+    --subnet=2001:db8:abc8::/64 --gateway=2001:db8:abc8::10 \
+     -o parent=eth0.218 \
+     -o macvlan_mode=bridge macvlan216
